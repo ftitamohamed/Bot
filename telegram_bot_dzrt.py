@@ -6,7 +6,7 @@ from telegram.error import TelegramError
 import asyncio
 
 # URL of the page to monitor
-url = 'http://httpbin.org'  # Replace with the actual URL
+url = 'https://www.dzrt.com/ar/our-products.html'  # Replace with the actual URL
 # CSS selector for products
 product_selector = '#layer-product-list > div.products.wrapper.grid.products-grid > ol > li'
 BOT_TOKEN = '6746928562:AAEZ9oQAKRud8corKj5bLVtT7ScCw0FAxts'
