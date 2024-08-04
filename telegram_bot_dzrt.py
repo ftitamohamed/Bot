@@ -88,6 +88,8 @@ async def background_task():
         # Wait for 15 minutes before the next request
         wait_time = 15 * 60  # 15 minutes in seconds
         print(f"Waiting for {wait_time // 60} minutes before the next request.")
+        message1 = f"Waiting for {wait_time // 60} minutes before the next request."
+        await send_message(bot, GROUP_CHAT_ID, message1)
         await asyncio.sleep(wait_time)
 
 async def handle(request):
