@@ -7,16 +7,16 @@ import asyncio
 from aiohttp import web
 
 # URL of the page to monitor
-url = 'https://www.dzrt.com/ar/our-products.html'  # Replace with the actual URL
+url = 'http://httpbin.org'  # Replace with the actual URL
 # CSS selector for products
 product_selector = '#layer-product-list > div.products.wrapper.grid.products-grid > ol > li'
 BOT_TOKEN = '6746928562:AAEZ9oQAKRud8corKj5bLVtT7ScCw0FAxts'
 # Replace 'YOUR_GROUP_CHAT_ID' with the chat ID of your group
 GROUP_CHAT_ID = '-1002089332048'
 
-def send_message(bot, chat_id, text):
+async def send_message(bot, chat_id, text):
     try:
-        bot.send_message(chat_id=chat_id, text=text)
+        await bot.send_message(chat_id=chat_id, text=text)
     except TelegramError as e:
         print(f"Failed to send message: {e}")
 
@@ -56,15 +56,14 @@ async def check_availability(soup, bot):
 
     if products_with_button:
         message = "Product(s) are now available!"
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, send_message, bot, GROUP_CHAT_ID, message)
+        await send_message(bot, GROUP_CHAT_ID, message)
         print("Product(s) are now available!")
         product_names = extract_product_names(products_with_button)
         if product_names:
             print("Available Products:")
             for name in product_names:
                 print(f"- {name}")
-                await loop.run_in_executor(None, send_message, bot, GROUP_CHAT_ID, name)
+                await send_message(bot, GROUP_CHAT_ID, name)
         else:
             print("No product names found.")
     else:
@@ -73,8 +72,7 @@ async def check_availability(soup, bot):
 async def scrape_page(url, bot):
     """Scrape the page and handle rate limits."""
     message = 'Welcome to dzrt watcher telegram bot'
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, send_message, bot, GROUP_CHAT_ID, message)
+    await send_message(bot, GROUP_CHAT_ID, message)
     response = fetch_page(url)
     if response:
         soup = parse_html(response.content)
