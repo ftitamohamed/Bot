@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from telegram import Bot
 from telegram.error import TelegramError
 import asyncio
-from aiohttp import web
+from flask import Flask, request
 
 # URL of the page to monitor
 url = 'https://www.dzrt.com/ar/our-products.html'  # Replace with the actual URL
@@ -92,20 +92,15 @@ async def background_task():
         await send_message(bot, GROUP_CHAT_ID, message1)
         await asyncio.sleep(wait_time)
 
-async def handle(request):
-    return web.Response(text="Bot is running")
+app = Flask(__name__)
 
-async def start_background_tasks(app):
-    app['bot_task'] = asyncio.create_task(background_task())
+@app.route('/')
+def index():
+    return "Bot is running"
 
-async def cleanup_background_tasks(app):
-    app['bot_task'].cancel()
-    await app['bot_task']
-
-app = web.Application()
-app.router.add_get('/', handle)
-app.on_startup.append(start_background_tasks)
-app.on_cleanup.append(cleanup_background_tasks)
+@app.before_first_request
+def activate_job():
+    asyncio.run(background_task())
 
 if __name__ == "__main__":
-    web.run_app(app, port=8000)
+    app.run(port=8000)
