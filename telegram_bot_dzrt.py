@@ -6,6 +6,7 @@ from telegram.error import TelegramError
 import asyncio
 from flask import Flask, request
 import threading
+import os
 
 # URL of the page to monitor
 url = 'https://www.dzrt.com/ar/our-products.html'  # Replace with the actual URL
@@ -107,4 +108,6 @@ if __name__ == "__main__":
     new_loop = asyncio.new_event_loop()
     t = threading.Thread(target=start_background_loop, args=(new_loop,))
     t.start()
-    app.run(port=8000)
+
+    port = int(os.environ.get('PORT', 8000))
+    app.run(host='0.0.0.0', port=port)
