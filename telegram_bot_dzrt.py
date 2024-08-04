@@ -5,6 +5,7 @@ from telegram import Bot
 from telegram.error import TelegramError
 import asyncio
 from flask import Flask, request
+import threading
 
 # URL of the page to monitor
 url = 'https://www.dzrt.com/ar/our-products.html'  # Replace with the actual URL
@@ -92,15 +93,18 @@ async def background_task():
         await send_message(bot, GROUP_CHAT_ID, message1)
         await asyncio.sleep(wait_time)
 
+def start_background_loop(loop):
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(background_task())
+
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return "Bot is running"
 
-@app.before_first_request
-def activate_job():
-    asyncio.run(background_task())
-
 if __name__ == "__main__":
+    new_loop = asyncio.new_event_loop()
+    t = threading.Thread(target=start_background_loop, args=(new_loop,))
+    t.start()
     app.run(port=8000)
