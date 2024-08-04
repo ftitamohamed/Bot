@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from telegram import Bot
 from telegram.error import TelegramError
 import asyncio
+from aiohttp import web
 
 # URL of the page to monitor
 url = 'https://www.dzrt.com/ar/our-products.html'  # Replace with the actual URL
@@ -81,8 +82,8 @@ async def scrape_page(url, bot):
     else:
         print("Failed to fetch the page.")
 
-async def main():
-    """Main function to run the scraper."""
+async def background_task():
+    """Background task to run the scraper."""
     bot = Bot(token=BOT_TOKEN)
     while True:
         await scrape_page(url, bot)
@@ -91,5 +92,20 @@ async def main():
         print(f"Waiting for {wait_time // 60} minutes before the next request.")
         await asyncio.sleep(wait_time)
 
+async def handle(request):
+    return web.Response(text="Bot is running")
+
+async def start_background_tasks(app):
+    app['bot_task'] = asyncio.create_task(background_task())
+
+async def cleanup_background_tasks(app):
+    app['bot_task'].cancel()
+    await app['bot_task']
+
+app = web.Application()
+app.router.add_get('/', handle)
+app.on_startup.append(start_background_tasks)
+app.on_cleanup.append(cleanup_background_tasks)
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    web.run_app(app, port=8000)
